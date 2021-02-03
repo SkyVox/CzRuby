@@ -1,0 +1,8 @@
+# Placeholders Disponível:
+# ----loja----
+# %price% -> Valor do item;
+# %currency% -> Nome da moeda à ser usada.
+# ----geral----
+# %player_name% - Nome do jogador.
+# %fragments% - Quantidade de 'Fragmento' que este jogador possui.
+# %rubies% - Quantidade de 'Rubi' que este jogador possui.
