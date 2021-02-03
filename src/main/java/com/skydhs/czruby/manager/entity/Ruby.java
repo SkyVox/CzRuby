@@ -1,7 +1,102 @@
 package com.skydhs.czruby.manager.entity;
 
-public class Ruby {
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
-    public Ruby(final String playerName) {
+import java.util.HashMap;
+import java.util.Map;
+
+public class Ruby {
+    private static final Map<String, Ruby> RUBIES = new HashMap<>(1024);
+
+    private final String playerName;
+    private long fragments, rubies;
+    private boolean online;
+
+    public Ruby(final String playerName, long fragments, long rubies) {
+        this(playerName, fragments, rubies, false);
+    }
+
+    public Ruby(final String playerName, long fragments, long rubies, boolean online) {
+        this.playerName = playerName;
+        this.fragments = fragments;
+        this.rubies = rubies;
+        this.online = online;
+
+        // Add this entity to cache.
+        this.cache();
+    }
+
+    private void cache() {
+        Ruby.RUBIES.put(playerName.toLowerCase(), this);
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public Player asPlayer() {
+        return isOnline() ? Bukkit.getPlayer(this.playerName) : null;
+    }
+
+    public long getFragments() {
+        return fragments;
+    }
+
+    public void addFragment(long n) {
+        this.fragments+=n;
+    }
+
+    public void setFragments(long n) {
+        this.fragments = n;
+    }
+
+    public long getRubies() {
+        return rubies;
+    }
+
+    public void addRuby(long n) {
+        this.rubies+=n;
+    }
+
+    public void setRubies(long n) {
+        this.rubies = n;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public boolean changeOnline() {
+        return this.online = !this.online;
+    }
+
+    public String replace(final String text) {
+        return text == null || text.isEmpty() ? text : StringUtils.replaceEach(text, placeholders(), replacement());
+    }
+
+    public String[] placeholders() {
+        return new String[] {
+                "%player_name%",
+                "%fragments%",
+                "%rubies%"
+        };
+    }
+
+    public String[] replacement() {
+        return new String[] {
+                this.playerName,
+                String.valueOf(this.fragments),
+                String.valueOf(this.rubies)
+        };
+    }
+
+    public static Ruby from(Player player) {
+        return from(player.getName());
+    }
+
+    public static Ruby from(final String playerName) {
+        return Ruby.RUBIES.get(playerName.toLowerCase());
     }
 }
