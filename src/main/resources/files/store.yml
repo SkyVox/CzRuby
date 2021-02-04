@@ -1,0 +1,34 @@
+Menu:
+  info:
+    rows: 4
+    title: "&8Loja de Rubi"
+
+products:
+  discord_nitro:
+    type: "EXP_BOTTLE"
+    #type: "SKULL_ITEM:3" # Para cabeças.
+    #owner: "skin" # Para skin.
+    name: "&aDiscord Nitro"
+    lore:
+      - '&7Clique para comprar!'
+      - '&7Estoque disponível: %stock_size%/10'
+      - ''
+      - '&8Preço: %price% - %currency%'
+    informative: false
+    currency: "RUBY" # FRAGMENT | RUBY
+    price: 150
+    slot: 11
+    product:
+      stock:
+        - 'discord.gg/key_1'
+        - 'discord.gg/key_2'
+        - 'discord.gg/key_3'
+      amount: 1 # Quantidade de keys que será enviada pro jogador.
+      rewards:
+        commands:
+          - '[CONSOLE]/whisper %player_name% Você comprou 1xDiscord Nitro.'
+          - '[PLAYER]/ruby'
+        messages:
+          - ''
+          - '&f&lVocê comprou 1xDiscord Nitro.'
+        items: {}

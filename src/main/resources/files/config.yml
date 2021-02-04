@@ -6,3 +6,19 @@
 # %player_name% - Nome do jogador.
 # %fragments% - Quantidade de 'Fragmento' que este jogador possui.
 # %rubies% - Quantidade de 'Rubi' que este jogador possui.
+
+# MySQL connection.
+MySQL:
+  enabled: false
+  host: ''
+  database: ''
+  username: ''
+  password: ''
+  port: 3306
+
+Settings: {}
+
+# Mensagens.
+Messages:
+  no-enough-fragments: "&cVocê não possui fragmentos suficiente. É necessário %price% para continuar."
+  no-enough-rubies: "&cVocê não possui rubi suficiente. É necessário %price% para continuar."

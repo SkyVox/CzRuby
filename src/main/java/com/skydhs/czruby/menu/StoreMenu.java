@@ -1,5 +1,6 @@
 package com.skydhs.czruby.menu;
 
+import com.skydhs.czruby.FileUtil;
 import com.skydhs.czruby.manager.entity.Ruby;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -21,14 +22,14 @@ public class StoreMenu {
 
     private final String title;
     private final int rows;
-    private final Map<DisplayItem, Reward> items = new HashMap<>(54);
+    private Map<DisplayItem, Reward> items;
 
     public StoreMenu(String title, int rows, Map<DisplayItem, Reward> items) {
         StoreMenu.instance = this;
 
         this.title = title;
         this.rows = rows;
-        this.items.putAll(items);
+        this.items = items;
     }
 
     public static void open(Player player) {
@@ -76,7 +77,7 @@ public class StoreMenu {
         return instance;
     }
 
-    public class DisplayItem {
+    public static class DisplayItem {
         private final String idKey;
 
         private ItemStack item;
@@ -133,7 +134,7 @@ public class StoreMenu {
         }
     }
 
-    public class Reward {
+    public static class Reward {
         private ItemStack[] items;
         private String[] commands, messages;
 
@@ -221,7 +222,8 @@ public class StoreMenu {
                 }
             }
 
-            // TODO: Update this 'idKey' on store file.
+            FileUtil.getFile("store").get().set("products." + idKey + ".product.stock", product);
+            FileUtil.getFile("store").save();
 
             return log.toString();
         }

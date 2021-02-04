@@ -1,5 +1,6 @@
 package com.skydhs.czruby.manager.entity;
 
+import com.skydhs.czruby.FileUtil;
 import com.skydhs.czruby.menu.StoreMenu;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -73,7 +74,7 @@ public class Ruby {
         return this.online = !this.online;
     }
 
-    public boolean processPurchase(int slot) {
+    public boolean processPurchase(Player player, int slot) {
         // TODO: Create a shop log system.
 
         Map.Entry<StoreMenu.DisplayItem, StoreMenu.Reward> display = StoreMenu.getEntryBySlot(slot);
@@ -84,14 +85,22 @@ public class Ruby {
         switch (display.getKey().getCurrency()) {
             case FRAGMENT:
                 if (this.fragments < price) {
-                    // TODO. Message...
+                    player.sendMessage(FileUtil.get().getString("Messages.no-enough-fragments", new String[] {
+                            "%price%"
+                    }, new String[] {
+                            String.valueOf(price)
+                    }).asString());
                     return false;
                 }
                 this.fragments-=price;
                 break;
             case RUBY:
                 if (this.rubies < price) {
-                    // TODO. Message...
+                    player.sendMessage(FileUtil.get().getString("Messages.no-enough-rubies", new String[] {
+                            "%price%"
+                    }, new String[] {
+                            String.valueOf(price)
+                    }).asString());
                     return false;
                 }
                 this.rubies-=price;
