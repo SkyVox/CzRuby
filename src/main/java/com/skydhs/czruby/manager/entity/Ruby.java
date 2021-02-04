@@ -1,5 +1,6 @@
 package com.skydhs.czruby.manager.entity;
 
+import com.skydhs.czruby.menu.StoreMenu;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -70,6 +71,34 @@ public class Ruby {
 
     public boolean changeOnline() {
         return this.online = !this.online;
+    }
+
+    public boolean processPurchase(int slot) {
+        // TODO: Create a shop log system.
+
+        Map.Entry<StoreMenu.DisplayItem, StoreMenu.Reward> display = StoreMenu.getEntryBySlot(slot);
+        if (display == null) return false;
+
+        final long price = display.getKey().getPrice();
+
+        switch (display.getKey().getCurrency()) {
+            case FRAGMENT:
+                if (this.fragments < price) {
+                    // TODO. Message...
+                    return false;
+                }
+                this.fragments-=price;
+                break;
+            case RUBY:
+                if (this.rubies < price) {
+                    // TODO. Message...
+                    return false;
+                }
+                this.rubies-=price;
+                break;
+        }
+
+        return true;
     }
 
     public String replace(final String text) {
