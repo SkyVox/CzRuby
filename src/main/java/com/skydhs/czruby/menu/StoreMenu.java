@@ -57,7 +57,7 @@ public class StoreMenu {
                 }, new String[] {
                         String.valueOf(display.price),
                         display.currency.getName(),
-                        String.valueOf(value == null ? "0" : value.getStockSize())
+                        (value == null || !value.hasStock() ? FileUtil.get().getString("Settings.no-stock-available").asString() : String.valueOf(value.getStockSize()))
                 })).collect(Collectors.toList()));
                 item.setItemMeta(meta);
             }

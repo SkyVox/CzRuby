@@ -6,3 +6,11 @@ website: "http://www.skydhs.com"
 
 # Main class.
 main: ${project.groupId}.Core
+
+commands:
+  rubi:
+    description: "Gerenciar Rubi."
+    usage: "/rubi ajuda"
+  rubifrag:
+    description: "Gerenciar Fragmentos de Rubi."
+    usage: "/rubifrag ajuda"

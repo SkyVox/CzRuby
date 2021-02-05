@@ -6,6 +6,9 @@
 # %player_name% - Nome do jogador.
 # %fragments% - Quantidade de 'Fragmento' que este jogador possui.
 # %rubies% - Quantidade de 'Rubi' que este jogador possui.
+# ----PlaceholderAPI----
+# %czruby_fragments% - Quantidade de 'Fragmento' que este jogador possui.
+# %czruby_rubies% - Quantidade de 'Rubi' que este jogador possui.
 
 # MySQL connection.
 MySQL:
@@ -16,9 +19,38 @@ MySQL:
   password: ''
   port: 3306
 
-Settings: {}
+Settings:
+  no-stock-available: "&cSem estoque"
 
 # Mensagens.
 Messages:
+  insufficient-permission: "&cVocê não possui permissão."
   no-enough-fragments: "&cVocê não possui fragmentos suficiente. É necessário %price% para continuar."
   no-enough-rubies: "&cVocê não possui rubi suficiente. É necessário %price% para continuar."
+  args-need-to-be-int: "&cO valor %args% precisa ser um número inteiro."
+  invalid-target: "&cEste jogador não está online ou não existe."
+  ruby-cmd:
+    set-ruby-sender: "&aRubi do jogador %target% foi definido para %rubies%!"
+    set-ruby-target: "&aSeu Rubi foi definido para &a%rubies%!" # Use %sender% para obter o nome de quem executou o comando.
+    add-ruby-sender: "&aVocê enviou +%rubies% Rubi para %target%!"
+    add-ruby-target: "&aVocê recebeu +%rubies% Rubi de %sender%!"
+    take-ruby-sender: "&aVocê retirou %rubies% Rubi do jogador %sender%!"
+    take-ruby-target: "&a%sender% retirou %rubies% Rubi da sua conta!"
+    help:
+      - '&aRuby Commands:'
+      - '&e/rubi set <jogador> <quantidade> &b- Define uma quantidade de Rubi para um jogador.'
+      - '&e/rubi add <jogador> <quantidade> &b- Enviar Rubi para um jogador.'
+      - '&e/rubi take <jogador> <quantidade> &b- Remover Rubi de um jogador.'
+      - '&e/rubi loja &b- Visualizar loja.'
+  fragment-cmd:
+    set-fragment-sender: "&aFragmento do jogador %target% foi definido para %fragments%!"
+    set-fragment-target: "&aSeu Fragmento foi definido para &a%fragments%!" # Use %sender% para obter o nome de quem executou o comando.
+    add-fragment-sender: "&aVocê enviou +%fragments% Fragmento para %target%!"
+    add-fragment-target: "&aVocê recebeu +%fragments% Fragmento de %sender%!"
+    take-fragment-sender: "&aVocê retirou %fragments% Fragmento do jogador %sender%!"
+    take-fragment-target: "&a%sender% retirou %fragments% Fragmento da sua conta!"
+    help:
+      - '&aFragment Commands:'
+      - '&e/rubifrag set <jogador> <quantidade> &b- Define uma quantidade de Fragmento para um jogador.'
+      - '&e/rubifrag add <jogador> <quantidade> &b- Enviar Fragmento para um jogador.'
+      - '&e/rubifrag take <jogador> <quantidade> &b- Remover Fragmento de um jogador.'

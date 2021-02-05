@@ -66,6 +66,7 @@ public class Ruby {
     }
 
     public void setRubies(long n) {
+        if (rubies - n < 0) n = this.rubies;
         this.rubies = n;
     }
 
