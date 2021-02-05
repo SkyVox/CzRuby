@@ -12,7 +12,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -69,11 +68,19 @@ public class StoreMenu {
         player.openInventory(inventory);
     }
 
-    public static Map.Entry<DisplayItem, Reward> getEntryBySlot(int slot) {
+    public String getTitle() {
+        return title;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public Map.Entry<DisplayItem, Reward> getEntryBySlot(int slot) {
         return getInstance().items.entrySet().stream().filter(i -> i.getKey().slot == slot).findFirst().orElse(null);
     }
 
-    private static StoreMenu getInstance() {
+    public static StoreMenu getInstance() {
         return instance;
     }
 

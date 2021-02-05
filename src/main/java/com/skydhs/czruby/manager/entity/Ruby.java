@@ -6,8 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Ruby {
     private static final Map<String, Ruby> RUBIES = new HashMap<>(1024);
@@ -15,6 +14,10 @@ public class Ruby {
     private final String playerName;
     private long fragments, rubies;
     private boolean online;
+
+    // Store purchase logs.
+    // This might be null if this player haven't purchased anything on shop
+    private List<String> log = null;
 
     public Ruby(final String playerName, long fragments, long rubies) {
         this(playerName, fragments, rubies, false);
@@ -74,10 +77,21 @@ public class Ruby {
         return this.online = !this.online;
     }
 
-    public boolean processPurchase(Player player, int slot) {
-        // TODO: Create a shop log system.
+    public List<String> getLog() {
+        return log;
+    }
 
-        Map.Entry<StoreMenu.DisplayItem, StoreMenu.Reward> display = StoreMenu.getEntryBySlot(slot);
+    public void setLog(List<String> log) {
+        this.log = log;
+    }
+
+    private void log(final String log) {
+        if (this.log == null) this.log = new LinkedList<>();
+        this.log.add(log);
+    }
+
+    public boolean processPurchase(Player player, int slot) {
+        Map.Entry<StoreMenu.DisplayItem, StoreMenu.Reward> display = StoreMenu.getInstance().getEntryBySlot(slot);
         if (display == null) return false;
 
         final long price = display.getKey().getPrice();
@@ -107,6 +121,9 @@ public class Ruby {
                 break;
         }
 
+        // Claim this reward.
+        final String log = display.getValue().claim(player, display.getKey().getIdKey());
+        this.log(log);
         return true;
     }
 
