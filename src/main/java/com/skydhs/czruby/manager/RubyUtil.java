@@ -3,6 +3,7 @@ package com.skydhs.czruby.manager;
 import com.skydhs.czruby.Core;
 import com.skydhs.czruby.CurrencyType;
 import com.skydhs.czruby.FileUtil;
+import com.skydhs.czruby.menu.StoreLogMenu;
 import com.skydhs.czruby.menu.StoreMenu;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
@@ -17,24 +18,17 @@ public class RubyUtil {
     private static RubyUtil instance;
 
     private StoreMenu storeMenu;
+    private StoreLogMenu storeLogMenu;
 
     public RubyUtil() {
         RubyUtil.instance = this;
-    }
-
-    public StoreMenu getStoreMenu() {
-        return storeMenu;
-    }
-
-    public static RubyUtil getInstance() {
-        return instance;
     }
 
     public void load(Core core) {
         new BukkitRunnable() {
             @Override
             public void run() {
-                loadStore(FileUtil.getFile("store"));
+                loadMenu(FileUtil.getFile("store"));
                 // TODO, Load online players from database.
             }
         }.runTaskLaterAsynchronously(core, 0L);
@@ -44,7 +38,15 @@ public class RubyUtil {
         // TODO, Unload cached players save their stats on database.
     }
 
-    private void loadStore(FileUtil.FileManager file) {
+    public StoreMenu getStoreMenu() {
+        return storeMenu;
+    }
+
+    public StoreLogMenu getStoreLogMenu() {
+        return storeLogMenu;
+    }
+
+    private void loadMenu(FileUtil.FileManager file) {
         Set<StoreMenu.Display> display = new HashSet<>(54);
 
         file.get().getConfigurationSection("Store-Menu.items").getKeys(false).forEach(section -> {
@@ -70,7 +72,12 @@ public class RubyUtil {
             display.add(new StoreMenu.Display(section, builder.build(), name, lore, slot, informative, currency, price, product));
         });
 
-        // Create new StoreMenu object.
+        // Create menus.
         this.storeMenu = new StoreMenu(display);
+        this.storeLogMenu = new StoreLogMenu();
+    }
+
+    public static RubyUtil getInstance() {
+        return instance;
     }
 }
