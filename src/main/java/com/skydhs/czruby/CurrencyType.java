@@ -1,4 +1,4 @@
-package com.skydhs.czruby.menu;
+package com.skydhs.czruby;
 
 public enum CurrencyType {
     FRAGMENT("Fragmento"),

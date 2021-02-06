@@ -46,7 +46,7 @@ public class Core extends JavaPlugin {
 
         // -- Load all classes instances and the plugin dependencies -- \\
         console.sendMessage("Loading dependencies and instances...");
-        new RubyUtil().asyncLoad(this);
+        new RubyUtil().load(this);
 
         console.sendMessage("Loading command and listeners...");
         getServer().getPluginManager().registerEvents(new HandleGeneralListeners(), this);

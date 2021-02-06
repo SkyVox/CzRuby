@@ -1,71 +1,76 @@
 package com.skydhs.czruby.manager;
 
 import com.skydhs.czruby.Core;
+import com.skydhs.czruby.CurrencyType;
 import com.skydhs.czruby.FileUtil;
-import com.skydhs.czruby.menu.CurrencyType;
 import com.skydhs.czruby.menu.StoreMenu;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RubyUtil {
+    private static RubyUtil instance;
+
+    private StoreMenu storeMenu;
 
     public RubyUtil() {
+        RubyUtil.instance = this;
     }
 
-    public void asyncLoad(Core core) {
+    public StoreMenu getStoreMenu() {
+        return storeMenu;
+    }
+
+    public static RubyUtil getInstance() {
+        return instance;
+    }
+
+    public void load(Core core) {
         new BukkitRunnable() {
             @Override
             public void run() {
-                syncLoad();
-
-                // TODO. Load online players from database.
+                loadStore(FileUtil.getFile("store"));
+                // TODO, Load online players from database.
             }
         }.runTaskLaterAsynchronously(core, 0L);
     }
 
-    public void syncLoad() {
-        // Load the store system.
-        loadStore(FileUtil.getFile("store"));
+    public void unload() {
+        // TODO, Unload cached players save their stats on database.
     }
 
-    private static void loadStore(FileUtil.FileManager file) {
-        final String title = ChatColor.translateAlternateColorCodes('&', file.get().getString("Menu.info.title"));
-        final int rows = file.get().getInt("Menu.info.rows");
-        Map<StoreMenu.DisplayItem, StoreMenu.Reward> items = new HashMap<>(54);
+    private void loadStore(FileUtil.FileManager file) {
+        Set<StoreMenu.Display> display = new HashSet<>(54);
 
-        file.get().getConfigurationSection("products").getKeys(false).forEach(section -> {
-            final String path = "products." + section;
+        file.get().getConfigurationSection("Store-Menu.items").getKeys(false).forEach(section -> {
+            final String path = "Store-Menu.items." + section;
 
-            // Display information.
             ItemBuilder builder = ItemBuilder.get(file.get(), path);
             String name = ChatColor.translateAlternateColorCodes('&', file.get().getString(path + ".name"));
             List<String> lore = file.get().getStringList(path + ".lore").stream().map(str -> ChatColor.translateAlternateColorCodes('&', str)).collect(Collectors.toList());
+            int slot = file.get().getInt(path + "slot");
             boolean informative = file.get().getString(path + ".informative").equalsIgnoreCase("true");
             CurrencyType currency = CurrencyType.valueOf(file.get().getString(path + ".currency").toUpperCase());
             long price = file.get().getLong(path + "price");
-            int slot = file.get().getInt(path + "slot");
 
-            // Reward information.
-            ItemStack[] rewardItems = file.get().getConfigurationSection(path + ".product.rewards.items").getKeys(false).stream().map(item -> ItemBuilder.get(file.get(), path + ".items." + item).build()).toArray(ItemStack[]::new);
-            String[] commands = file.get().getStringList(path + ".product.rewards.commands").toArray(new String[0]);
-            String[] messages = file.get().getStringList(path + ".product.rewards.messages").stream().map(str -> ChatColor.translateAlternateColorCodes('&', str)).toArray(String[]::new);
-            List<String> product = file.get().getStringList(path + ".product.rewards.stock");
-            int productAmount = file.get().getInt(path + ".product.rewards.amount");
+            // Loading the product information.
+            int stock = file.get().getInt(path + ".product.in-stock"), amount = file.get().getInt(path + ".product.amount");
+            List<String> key = file.get().contains(path + ".product.key") ? file.get().getStringList(path + ".product.key") : null;
+            String[] commands = file.get().contains(path + ".product.commands") ? file.get().getStringList(path + ".product.commands").toArray(new String[0]) : null;
+            String[] messages = file.get().contains(path + ".product.messages") ? file.get().getStringList(path + ".product.messages").stream().map(str -> ChatColor.translateAlternateColorCodes('&', str)).toArray(String[]::new) : null;
+            ItemStack[] items = file.get().contains(path + ".product.items") ? file.get().getConfigurationSection(path + ".product.items").getKeys(false).stream().map(item -> ItemBuilder.get(file.get(), path + ".product.items." + item).build()).toArray(ItemStack[]::new) : null;
 
-            // Add this to items.
-            items.put(
-                    new StoreMenu.DisplayItem(section, builder.build(), name, lore, informative, currency, price, slot),
-                    new StoreMenu.Reward(rewardItems, commands, messages, product, productAmount)
-            );
+            // Finally cache this item.
+            StoreMenu.Product product = new StoreMenu.Product(stock, amount, key, commands, messages, items);
+            display.add(new StoreMenu.Display(section, builder.build(), name, lore, slot, informative, currency, price, product));
         });
 
-        // Create new object.
-        new StoreMenu(title, rows, items);
+        // Create new StoreMenu object.
+        this.storeMenu = new StoreMenu(display);
     }
 }

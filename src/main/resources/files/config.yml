@@ -28,6 +28,7 @@ Messages:
   no-enough-fragments: "&cVocê não possui fragmentos suficiente. É necessário %price% para continuar."
   no-enough-rubies: "&cVocê não possui rubi suficiente. É necessário %price% para continuar."
   no-purchases-found: "&cVocê ainda não possui nenhuma compra. Use &f/rubi loja &cpara realizar uma compra."
+  product-with-no-stock: "&cDesculpe infelizmente todos os itens disponíveis foram vendidos."
   args-need-to-be-int: "&cO valor %args% precisa ser um número inteiro."
   invalid-target: "&cEste jogador não está online ou não existe."
   ruby-cmd:

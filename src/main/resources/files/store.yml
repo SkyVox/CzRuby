@@ -1,34 +1,66 @@
-Menu:
+Store-Menu:
   info:
-    rows: 4
-    title: "&8Loja de Rubi"
+    rows: 3
+    title: "&7Loja de Rubi"
+  items:
+    discord_nitro:
+      type: "EXP_BOTTLE"
+      #type: "SKULL_ITEM:3" # Para cabeças.
+      #owner: "skin" # Para skin.
+      name: "&aDiscord Nitro"
+      lore:
+        - '&7Clique para comprar!'
+        - '&7Estoque disponível: %stock_size%/10'
+        - ''
+        - '&8Preço: %price% - %currency%'
+      slot: 11
 
-products:
-  discord_nitro:
-    type: "EXP_BOTTLE"
-    #type: "SKULL_ITEM:3" # Para cabeças.
-    #owner: "skin" # Para skin.
-    name: "&aDiscord Nitro"
-    lore:
-      - '&7Clique para comprar!'
-      - '&7Estoque disponível: %stock_size%/10'
-      - ''
-      - '&8Preço: %price% - %currency%'
-    informative: false
-    currency: "RUBY" # FRAGMENT | RUBY
-    price: 150
-    slot: 11
-    product:
-      stock:
-        - 'discord.gg/key_1'
-        - 'discord.gg/key_2'
-        - 'discord.gg/key_3'
-      amount: 1 # Quantidade de keys que será enviada pro jogador.
-      rewards:
+      # Se este item é apenas informativo ou não.
+      informative: false
+
+      currency: "RUBY" # FRAGMENT | RUBY
+      price: 150
+
+      # Produto.
+      # Este é o produto que o jogador vai receber ao comprar este item.
+      product:
+        # in-stock -> Quantidade total disponível.
+        in-stock: 10
+        # amount -> Quantidade de cada item que será enviada pro jogador.
+        amount: 1
+        # Esta é a chave que será enviada pro jogador.
+        # Toda vez que um jogador comprar, será removida a primeira chave.
+        key:
+          - 'discord.gg/key_1'
+          - 'discord.gg/key_2'
         commands:
           - '[CONSOLE]/whisper %player_name% Você comprou 1xDiscord Nitro.'
           - '[PLAYER]/ruby'
         messages:
           - ''
           - '&f&lVocê comprou 1xDiscord Nitro.'
+          - ''
         items: {}
+
+Confirmation-Menu:
+  info:
+    rows: 3
+    title: "&7Loja de Rubi (Confirmação)"
+  items:
+    1:
+      type: "WOOL:5"
+      name: "&aConfirmar"
+      lore:
+        - '&7Clique para confirmar esta compra.'
+      slot: 11
+      action: "CONFIRM"
+    2:
+      type: "WOOL:14"
+      name: "&cCancelar"
+      lore:
+        - '&7Clique para cancelar.'
+      action: "CANCEL"
+      slot: 15
+    3:
+      type: "%store_item%"
+      slot: 13

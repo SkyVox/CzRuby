@@ -1,8 +1,8 @@
 package com.skydhs.czruby.commands;
 
 import com.skydhs.czruby.FileUtil;
+import com.skydhs.czruby.manager.RubyUtil;
 import com.skydhs.czruby.manager.entity.Ruby;
-import com.skydhs.czruby.menu.StoreMenu;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -30,7 +30,7 @@ public class RubyCmd implements CommandExecutor {
             }
         } else if (StringUtils.equalsIgnoreCase(argument, "LOJA")) {
             if (sender instanceof Player) {
-                StoreMenu.open((Player) sender);
+                RubyUtil.getInstance().getStoreMenu().open((Player) sender);
             } else {
                 sender.sendMessage("Apenas jogadores pode executar este comando.");
             }
@@ -40,7 +40,7 @@ public class RubyCmd implements CommandExecutor {
             if (ruby.getLog() == null || ruby.getLog().isEmpty()) {
                 sender.sendMessage(FileUtil.get().getString("Messages.no-purchases-found").asString());
             } else {
-                ruby.getLog().forEach(sender::sendMessage);
+//                ruby.getLog().forEach(sender::sendMessage);
             }
         } else {
             if (!sender.hasPermission("ruby.admin")) {

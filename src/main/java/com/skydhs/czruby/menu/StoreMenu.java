@@ -1,5 +1,6 @@
 package com.skydhs.czruby.menu;
 
+import com.skydhs.czruby.CurrencyType;
 import com.skydhs.czruby.FileUtil;
 import com.skydhs.czruby.manager.entity.Ruby;
 import org.apache.commons.lang.StringUtils;
@@ -12,27 +13,21 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class StoreMenu {
-    private static StoreMenu instance;
+    private final String title = ChatColor.translateAlternateColorCodes('&', FileUtil.getFile("store").get().getString("Store-Menu.info.title"));
+    private final int rows = FileUtil.getFile("store").get().getInt("Store-Menu.info.rows");
 
-    private final String title;
-    private final int rows;
-    private Map<DisplayItem, Reward> items;
+    // Menu items.
+    private Set<Display> items;
 
-    public StoreMenu(String title, int rows, Map<DisplayItem, Reward> items) {
-        StoreMenu.instance = this;
-
-        this.title = title;
-        this.rows = rows;
+    public StoreMenu(Set<Display> items) {
         this.items = items;
     }
 
-    public static void open(Player player) {
-        final StoreMenu menu = getInstance();
+    public void open(Player player) {
         Ruby ruby = Ruby.from(player);
 
         if (ruby == null) {
@@ -40,9 +35,10 @@ public class StoreMenu {
             return;
         }
 
-        Inventory inventory = Bukkit.createInventory(null, menu.rows, menu.title);
+        // Create new inventory.
+        Inventory inventory = Bukkit.createInventory(null, rows, title);
 
-        menu.items.forEach((display, value) -> {
+        this.items.forEach(display -> {
             if (display.slot < 0 || display.slot >= 54 || display.item == null) return;
 
             ItemStack item = display.item.clone();
@@ -57,7 +53,7 @@ public class StoreMenu {
                 }, new String[] {
                         String.valueOf(display.price),
                         display.currency.getName(),
-                        (value == null || !value.hasStock() ? FileUtil.get().getString("Settings.no-stock-available").asString() : String.valueOf(value.getStockSize()))
+                        (display.getProduct() == null || !display.getProduct().hasStock() ? FileUtil.get().getString("Settings.no-stock-available").asString() : String.valueOf(display.getProduct().getStock()))
                 })).collect(Collectors.toList()));
                 item.setItemMeta(meta);
             }
@@ -76,44 +72,45 @@ public class StoreMenu {
         return rows;
     }
 
-    public Map.Entry<DisplayItem, Reward> getEntryBySlot(int slot) {
-        return getInstance().items.entrySet().stream().filter(i -> i.getKey().slot == slot).findFirst().orElse(null);
+    public Set<Display> getItems() {
+        return new HashSet<>(this.items);
     }
 
-    public static StoreMenu getInstance() {
-        return instance;
+    public Display getDisplayBySlot(int slot) {
+        return this.items.stream().filter(i -> i.getSlot() == slot).findFirst().orElse(null);
     }
 
-    public static class DisplayItem {
-        private final String idKey;
+    public static class Display {
+        private final String pathId;
 
         private ItemStack item;
         private String name;
         private List<String> lore;
-        private boolean informative;
+        private int slot;
 
         private CurrencyType currency;
         private long price;
 
-        private int slot;
+        // Product information.
+        private Product product;
 
-        public DisplayItem(final String idKey, ItemStack item, String name, List<String> lore, boolean informative, CurrencyType currency, long price, int slot) {
-            this.idKey = idKey;
+        public Display(final String pathId, ItemStack item, String name, List<String> lore, int slot, boolean informative, CurrencyType currency, long price, Product product) {
+            this.pathId = pathId;
             this.item = item;
             this.name = name;
             this.lore = lore;
-            this.informative = informative;
+            this.slot = slot;
             this.currency = currency;
             this.price = price;
-            this.slot = slot;
+            this.product = informative ? null : product;
         }
 
-        public String getIdKey() {
-            return idKey;
+        public final String getPathId() {
+            return pathId;
         }
 
         public ItemStack getItem() {
-            return item.clone();
+            return item;
         }
 
         public String getName() {
@@ -124,11 +121,11 @@ public class StoreMenu {
             return lore;
         }
 
-        private boolean isInformative() {
-            return informative;
+        public int getSlot() {
+            return slot;
         }
 
-        public CurrencyType getCurrency() {
+        public CurrencyType getCurrencyType() {
             return currency;
         }
 
@@ -136,58 +133,51 @@ public class StoreMenu {
             return price;
         }
 
-        public int getSlot() {
-            return slot;
-        }
-    }
-
-    public static class Reward {
-        private ItemStack[] items;
-        private String[] commands, messages;
-
-        // Those are probably paid products.
-        private List<String> product;
-        private int productAmount;
-
-        public Reward(ItemStack[] items, String[] commands, String[] messages, List<String> product, int productAmount) {
-            this.items = items;
-            this.commands = commands;
-            this.messages = messages;
-            this.product = product;
-            this.productAmount = productAmount;
+        public Product getProduct() {
+            return product;
         }
 
-        public String claim(Player player, String idKey) {
-            final StringBuilder log = new StringBuilder("Data: ").append(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))).append(" - ").append(idKey).append("\n");
+        public boolean hasProduct() {
+            return product != null;
+        }
 
-            if (messages != null) {
-                for (String str : messages) {
-                    player.sendMessage(str);
+        /**
+         * Process and claim this product.
+         *
+         * @param player Player who interact with
+         *               the current item.
+         * @param clicked Item that this player has
+         *                clicked on. This will be
+         *                used to save as log.
+         * @return A clone from @clicked completely re-built as log item.
+         */
+        public ItemStack claim(Player player, ItemStack clicked) {
+            final Product product = getProduct();
+            if (!product.hasStock()) return null;
+
+            // Create new lore log.
+            List<String> lore = new ArrayList<>();
+
+            lore.add(ChatColor.GRAY + "Registro de compra '" + StringUtils.replace(pathId, "_", " ") + "'");
+            lore.add("");
+
+            if (product.key != null && !product.key.isEmpty()) {
+                int i = product.amount;
+
+                lore.add(ChatColor.GRAY + "Chaves:");
+                while (i-- > 0) {
+                    String str = product.key.remove(0);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
+
+                    lore.add(ChatColor.YELLOW + " - " + ChatColor.ITALIC + str);
+                    if (product.key.size() <= 0) break;
                 }
+                lore.add("");
             }
 
-            if (items != null && items.length > 0) {
-                log.append("Itens: ");
-                for (ItemStack item : items) {
-                    log.append(item.getType().name()).append("x").append(item.getAmount()).append(" ");
-
-                    // Send this item for the given player.
-                    Map<Integer, ItemStack> remainder = player.getInventory().addItem(item.clone());
-
-                    if (remainder != null && !remainder.isEmpty()) {
-                        remainder.values().forEach(entry -> {
-                            if (entry != null) {
-                                player.getWorld().dropItemNaturally(player.getLocation().add(0D, 1.5D, 0D), entry);
-                            }
-                        });
-                    }
-                }
-                log.append("\n");
-            }
-
-            if (commands != null) {
-                log.append("Comandos: ");
-                for (String str : commands) {
+            if (product.commands != null) {
+                lore.add(ChatColor.GRAY + "Comandos:");
+                for (String str : product.commands) {
                     String command = StringUtils.replaceEach(str, new String[] {
                             "[PLAYER]",
                             "[CONSOLE]",
@@ -207,40 +197,87 @@ public class StoreMenu {
                         // Then, Player should execute this command.
                         Bukkit.dispatchCommand(player, command);
                     }
-
-                    log.append(command).append("\n");
+                    lore.add(ChatColor.YELLOW + " - " + ChatColor.ITALIC + command);
                 }
-                log.append("\n");
+                lore.add("");
             }
 
-            if (product != null) {
-                log.append("Produto: x").append(productAmount).append("\n");
-                int i = productAmount;
-
-                while (i > 0) {
-                    String str = product.remove(0);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
-
-                    // Log this.
-                    log.append(str).append("\n");
-
-                    i--;
-                    if (product.size() <= 0) break;
+            if (product.messages != null) {
+                for (String str : product.messages) {
+                    player.sendMessage(str);
                 }
             }
 
-            FileUtil.getFile("store").get().set("products." + idKey + ".product.stock", product);
-            FileUtil.getFile("store").save();
+            if (product.items != null) {
+                lore.add(ChatColor.GRAY + "Itens:");
+                for (ItemStack item : product.items) {
+                    // Send this item for the given player.
+                    Map<Integer, ItemStack> remainder = player.getInventory().addItem(item.clone());
 
-            return log.toString();
+                    lore.add(ChatColor.YELLOW + " - " + ChatColor.ITALIC + item.getType().name() + "x" + item.getAmount());
+                    if (remainder != null && !remainder.isEmpty()) {
+                        remainder.values().forEach(entry -> {
+                            if (entry != null) {
+                                player.getWorld().dropItemNaturally(player.getLocation().add(0D, 1.5D, 0D), entry);
+                            }
+                        });
+                    }
+                }
+            }
+
+            ItemStack ret = clicked.clone();
+            ItemMeta meta = ret.getItemMeta();
+
+            // Change item description.
+            meta.setDisplayName(ChatColor.GOLD + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            meta.setLore(lore);
+
+            ret.setItemMeta(meta);
+            return ret;
+        }
+    }
+
+    public static class Product {
+        private int stock, amount;
+        private List<String> key;
+        private String[] commands, messages;
+        private ItemStack[] items;
+
+        public Product(int stock, int amount, List<String> key, String[] commands, String[] messages, ItemStack[] items) {
+            this.stock = stock;
+            this.amount = amount;
+            this.key = key;
+            this.commands = commands;
+            this.messages = messages;
+            this.items = items;
+        }
+
+        public int getStock() {
+            return stock;
         }
 
         public boolean hasStock() {
-            return getStockSize() >= productAmount;
+            return stock > 0;
         }
 
-        public int getStockSize() {
-            return product == null || product.isEmpty() ? 0 : product.size();
+        public int getAmount() {
+            return amount;
+        }
+
+        public List<String> getKey() {
+            return key;
+        }
+
+        public String[] getCommands() {
+            return commands;
+        }
+
+        public String[] getMessages() {
+            return messages;
+        }
+
+        public ItemStack[] getItems() {
+            return items;
         }
     }
 }

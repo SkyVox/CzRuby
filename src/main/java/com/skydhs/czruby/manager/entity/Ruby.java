@@ -1,12 +1,18 @@
 package com.skydhs.czruby.manager.entity;
 
 import com.skydhs.czruby.FileUtil;
+import com.skydhs.czruby.manager.RubyUtil;
 import com.skydhs.czruby.menu.StoreMenu;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class Ruby {
     private static final Map<String, Ruby> RUBIES = new HashMap<>(1024);
@@ -17,7 +23,7 @@ public class Ruby {
 
     // Store purchase logs.
     // This might be null if this player haven't purchased anything on shop
-    private List<String> log = null;
+    private List<ItemStack> log = null;
 
     public Ruby(final String playerName, long fragments, long rubies) {
         this(playerName, fragments, rubies, false);
@@ -78,26 +84,32 @@ public class Ruby {
         return this.online = !this.online;
     }
 
-    public List<String> getLog() {
+    public List<ItemStack> getLog() {
         return log;
     }
 
-    public void setLog(List<String> log) {
+    public void setLog(List<ItemStack> log) {
         this.log = log;
     }
 
-    private void log(final String log) {
+    private void log(final ItemStack item) {
+        if (item == null || item.getType().equals(Material.AIR)) return;
         if (this.log == null) this.log = new LinkedList<>();
-        this.log.add(log);
+        this.log.add(item);
     }
 
-    public boolean processPurchase(Player player, int slot) {
-        Map.Entry<StoreMenu.DisplayItem, StoreMenu.Reward> display = StoreMenu.getInstance().getEntryBySlot(slot);
-        if (display == null) return false;
+    public boolean processPurchase(Player player, ItemStack clicked, int slot) {
+        StoreMenu.Display display = RubyUtil.getInstance().getStoreMenu().getDisplayBySlot(slot);
+        if (display == null || !display.hasProduct()) return false;
 
-        final long price = display.getKey().getPrice();
+        if (!display.getProduct().hasStock()) {
+            player.sendMessage(FileUtil.get().getString("Messages.product-with-no-stock").asString());
+            return false;
+        }
 
-        switch (display.getKey().getCurrency()) {
+        final long price = display.getPrice();
+
+        switch (display.getCurrencyType()) {
             case FRAGMENT:
                 if (this.fragments < price) {
                     player.sendMessage(FileUtil.get().getString("Messages.no-enough-fragments", new String[] {
@@ -123,7 +135,7 @@ public class Ruby {
         }
 
         // Claim this reward.
-        final String log = display.getValue().claim(player, display.getKey().getIdKey());
+        final ItemStack log = display.claim(player, clicked);
         this.log(log);
         return true;
     }
