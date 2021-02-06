@@ -7,6 +7,9 @@ website: "http://www.skydhs.com"
 # Main class.
 main: ${project.groupId}.Core
 
+softdepend:
+  - PlaceholderAPI
+
 commands:
   rubi:
     description: "Gerenciar Rubi."

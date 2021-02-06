@@ -27,6 +27,7 @@ Messages:
   insufficient-permission: "&cVocê não possui permissão."
   no-enough-fragments: "&cVocê não possui fragmentos suficiente. É necessário %price% para continuar."
   no-enough-rubies: "&cVocê não possui rubi suficiente. É necessário %price% para continuar."
+  no-purchases-found: "&cVocê ainda não possui nenhuma compra. Use &f/rubi loja &cpara realizar uma compra."
   args-need-to-be-int: "&cO valor %args% precisa ser um número inteiro."
   invalid-target: "&cEste jogador não está online ou não existe."
   ruby-cmd:
@@ -42,6 +43,7 @@ Messages:
       - '&e/rubi add <jogador> <quantidade> &b- Enviar Rubi para um jogador.'
       - '&e/rubi take <jogador> <quantidade> &b- Remover Rubi de um jogador.'
       - '&e/rubi loja &b- Visualizar loja.'
+      - '&e/rubi recompensas &b- Registro de compras.'
   fragment-cmd:
     set-fragment-sender: "&aFragmento do jogador %target% foi definido para %fragments%!"
     set-fragment-target: "&aSeu Fragmento foi definido para &a%fragments%!" # Use %sender% para obter o nome de quem executou o comando.

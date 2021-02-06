@@ -23,6 +23,8 @@ public class RubyUtil {
             @Override
             public void run() {
                 syncLoad();
+
+                // TODO. Load online players from database.
             }
         }.runTaskLaterAsynchronously(core, 0L);
     }

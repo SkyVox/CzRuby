@@ -34,6 +34,14 @@ public class RubyCmd implements CommandExecutor {
             } else {
                 sender.sendMessage("Apenas jogadores pode executar este comando.");
             }
+        } else if (StringUtils.containsIgnoreCase(argument, "RECOMPENSA")) {
+            Ruby ruby = Ruby.from(sender.getName());
+
+            if (ruby.getLog() == null || ruby.getLog().isEmpty()) {
+                sender.sendMessage(FileUtil.get().getString("Messages.no-purchases-found").asString());
+            } else {
+                ruby.getLog().forEach(sender::sendMessage);
+            }
         } else {
             if (!sender.hasPermission("ruby.admin")) {
                 sender.sendMessage(INSUFFICIENT_PERMISSION);
