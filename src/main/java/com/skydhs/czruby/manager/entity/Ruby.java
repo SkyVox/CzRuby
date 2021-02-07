@@ -167,4 +167,8 @@ public class Ruby {
     public static Ruby from(final String playerName) {
         return Ruby.RUBIES.get(playerName.toLowerCase());
     }
+
+    public static Map<String, Ruby> getRubiesCache() {
+        return RUBIES;
+    }
 }

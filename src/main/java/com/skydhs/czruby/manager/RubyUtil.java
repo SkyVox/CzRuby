@@ -3,8 +3,11 @@ package com.skydhs.czruby.manager;
 import com.skydhs.czruby.Core;
 import com.skydhs.czruby.CurrencyType;
 import com.skydhs.czruby.FileUtil;
+import com.skydhs.czruby.database.Database;
+import com.skydhs.czruby.manager.entity.Ruby;
 import com.skydhs.czruby.menu.StoreLogMenu;
 import com.skydhs.czruby.menu.StoreMenu;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -29,13 +32,16 @@ public class RubyUtil {
             @Override
             public void run() {
                 loadMenu(FileUtil.getFile("store"));
-                // TODO, Load online players from database.
+
+                Bukkit.getOnlinePlayers().forEach(player -> {
+                    Ruby ruby = Database.getInstance().getRubyTable().getPlayerRuby(player.getName(), true);
+
+                    if (ruby == null) {
+                        ruby = new Ruby(player.getName(), 0L, 0L, true);
+                    }
+                });
             }
         }.runTaskLaterAsynchronously(core, 0L);
-    }
-
-    public void unload() {
-        // TODO, Unload cached players save their stats on database.
     }
 
     public StoreMenu getStoreMenu() {
