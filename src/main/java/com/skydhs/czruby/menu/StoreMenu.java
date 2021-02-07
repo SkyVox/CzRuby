@@ -1,5 +1,6 @@
 package com.skydhs.czruby.menu;
 
+import com.skydhs.czruby.Core;
 import com.skydhs.czruby.CurrencyType;
 import com.skydhs.czruby.FileUtil;
 import com.skydhs.czruby.manager.entity.Ruby;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -225,6 +227,9 @@ public class StoreMenu {
                 }
             }
 
+            // Refresh file keys and decrease stock.
+            product.saveFile(pathId, FileUtil.getFile("store"));
+
             ItemStack ret = clicked.clone();
             ItemMeta meta = ret.getItemMeta();
 
@@ -278,6 +283,19 @@ public class StoreMenu {
 
         public ItemStack[] getItems() {
             return items;
+        }
+
+        private void saveFile(final String path, FileUtil.FileManager file) {
+            this.stock-=1;
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    file.get().set("Store-Menu.items." + path + ".product.in-stock", stock);
+                    file.get().set("Store-Menu.items." + path + ".product.key", key);
+                    file.save();
+                }
+            }.runTaskLaterAsynchronously(Core.getInstance(), 0L);
         }
     }
 }
