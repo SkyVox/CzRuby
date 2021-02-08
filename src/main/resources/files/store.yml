@@ -10,7 +10,7 @@ Store-Menu:
       name: "&aDiscord Nitro"
       lore:
         - '&7Clique para comprar!'
-        - '&7Estoque disponível: %stock_size%/10'
+        - '&7Estoque disponível: %stock_size%'
         - ''
         - '&8Preço: %price% - %currency%'
       slot: 11

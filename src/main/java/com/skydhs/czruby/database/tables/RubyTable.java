@@ -11,7 +11,7 @@ import java.sql.*;
 public class RubyTable extends Sql {
 
     public RubyTable() {
-        super("vote_daily", "CREATE TABLE IF NOT EXISTS `ruby_store` (`player_name` VARCHAR(16) NOT NULL, `fragments` INT, `rubies` INT, `log` JSON, PRIMARY KEY(`player_name`));");
+        super("ruby_store", "CREATE TABLE IF NOT EXISTS `ruby_store` (`player_name` VARCHAR(16) NOT NULL, `fragments` INT, `rubies` INT, `log` JSON, PRIMARY KEY(`player_name`));");
     }
 
     @Override

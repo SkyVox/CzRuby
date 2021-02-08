@@ -71,10 +71,10 @@ public class RubyUtil {
             ItemBuilder builder = ItemBuilder.get(file.get(), path);
             String name = ChatColor.translateAlternateColorCodes('&', file.get().getString(path + ".name"));
             List<String> lore = file.get().getStringList(path + ".lore").stream().map(str -> ChatColor.translateAlternateColorCodes('&', str)).collect(Collectors.toList());
-            int slot = file.get().getInt(path + "slot");
+            int slot = file.get().getInt(path + ".slot");
             boolean informative = file.get().getString(path + ".informative").equalsIgnoreCase("true");
             CurrencyType currency = CurrencyType.valueOf(file.get().getString(path + ".currency").toUpperCase());
-            long price = file.get().getLong(path + "price");
+            long price = file.get().getLong(path + ".price");
 
             // Loading the product information.
             int stock = file.get().getInt(path + ".product.in-stock"), amount = file.get().getInt(path + ".product.amount");

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class StoreMenu {
     private final String title = ChatColor.translateAlternateColorCodes('&', FileUtil.getFile("store").get().getString("Store-Menu.info.title"));
-    private final int rows = FileUtil.getFile("store").get().getInt("Store-Menu.info.rows");
+    private final int rows = FileUtil.getFile("store").get().getInt("Store-Menu.info.rows") * 9;
 
     // Menu items.
     private Set<Display> items;
@@ -160,7 +160,7 @@ public class StoreMenu {
             // Create new lore log.
             List<String> lore = new ArrayList<>();
 
-            lore.add(ChatColor.GRAY + "Registro de compra '" + StringUtils.replace(pathId, "_", " ") + "'");
+            lore.add(ChatColor.GRAY + "Registro de compra " + ChatColor.DARK_GRAY + ChatColor.ITALIC + StringUtils.replace(pathId, "_", " "));
             lore.add("");
 
             if (product.key != null && !product.key.isEmpty()) {
@@ -210,7 +210,7 @@ public class StoreMenu {
                 }
             }
 
-            if (product.items != null) {
+            if (product.items != null && product.items.length > 0) {
                 lore.add(ChatColor.GRAY + "Itens:");
                 for (ItemStack item : product.items) {
                     // Send this item for the given player.
