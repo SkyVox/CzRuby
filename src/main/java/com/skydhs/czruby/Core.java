@@ -21,15 +21,13 @@ public class Core extends JavaPlugin {
 
     private ConsoleCommandSender console = Bukkit.getConsoleSender();
 
-    private Core() {
-    }
-
     @Override
     public void onEnable() {
-        Core.instance = new Core();
         long time = System.currentTimeMillis();
         console.sendMessage("----------");
         console.sendMessage(ChatColor.GRAY + "Enabling " + ChatColor.YELLOW +  NAME + ChatColor.DARK_GRAY + "> " + ChatColor.GRAY + "Version: " + ChatColor.YELLOW + VERSION + ChatColor.GRAY + "!");
+
+        Core.instance = this;
 
         // -- Generate and setup the configuration files -- \\
         new FileUtil(this, new FileUtil.FileInfo[] {
@@ -38,9 +36,9 @@ public class Core extends JavaPlugin {
         });
 
         // -- Loading Database -- \\
-        Database database = Database.from(FileUtil.get());
-        if (!database.connect()) {
-            console.sendMessage(ChatColor.RED + "MySQL isn't enabled.");
+        if (!FileUtil.get().getBoolean("MySQL.enabled") || !Database.from(FileUtil.get()).connect()) {
+            console.sendMessage("MySQL is disabled, since this plugin depends on it we're disabling " + NAME + "...");
+            getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
@@ -67,7 +65,7 @@ public class Core extends JavaPlugin {
         console.sendMessage("----------");
         console.sendMessage(ChatColor.GRAY + "Disabling " + ChatColor.YELLOW +  NAME + ChatColor.DARK_GRAY + "> " + ChatColor.GRAY + "Version: " + ChatColor.YELLOW + VERSION + ChatColor.GRAY + "!");
 
-        if (Database.getInstance().isConnected()) {
+        if (Database.getInstance() != null && Database.getInstance().isConnected()) {
             Database.getInstance().close();
         }
 

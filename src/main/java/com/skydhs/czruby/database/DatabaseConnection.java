@@ -59,7 +59,7 @@ public interface DatabaseConnection extends Closeable {
      *
      * @return is Connected
      */
-    Boolean isConnected();
+    boolean isConnected();
 
     /**
      * This is the Database connection.
@@ -75,5 +75,5 @@ public interface DatabaseConnection extends Closeable {
      * This should only be called if this
      * application hasn't Database Connection.
      */
-    Boolean connect();
+    boolean connect();
 }

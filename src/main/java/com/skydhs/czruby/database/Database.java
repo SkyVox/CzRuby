@@ -23,7 +23,7 @@ public class Database implements DatabaseConnection {
     // Hikari Connection.
     private HikariDataSource hikari;
 
-    // Setup tables.
+    // Field tables.
     private RubyTable rubyTable;
 
     /*
@@ -88,8 +88,8 @@ public class Database implements DatabaseConnection {
     }
 
     @Override
-    public Boolean isConnected() {
-        return hikari == null ? Boolean.FALSE : hikari.isRunning();
+    public boolean isConnected() {
+        return hikari == null ? Boolean.FALSE : Boolean.TRUE;
     }
 
     @Override
@@ -120,7 +120,7 @@ public class Database implements DatabaseConnection {
     }
 
     @Override
-    public Boolean connect() throws MySQLException {
+    public boolean connect() throws MySQLException {
         if (isConnected()) throw new MySQLException("Connection is alive already.");
 
         if (instance != null) {
@@ -133,12 +133,10 @@ public class Database implements DatabaseConnection {
             hikari.setIdleTimeout(45000);
             hikari.setMaximumPoolSize(16);
             // Setup the Database connection.
-            hikari.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
-            hikari.addDataSourceProperty("serverName", host);
-            hikari.addDataSourceProperty("port", port);
-            hikari.addDataSourceProperty("databaseName", database);
-            hikari.addDataSourceProperty("user", username);
-            hikari.addDataSourceProperty("password", password);
+            hikari.setDriverClassName("com.mysql.jdbc.Driver");
+            hikari.setJdbcUrl("jdbc:mysql://" + host + ':' + port + '/' + database);
+            hikari.setUsername(username);
+            hikari.setPassword(password);
 
             // Successfully connected.
             this.setupTables();
@@ -161,7 +159,7 @@ public class Database implements DatabaseConnection {
         }
     }
 
-    public Boolean reconnect(byte value) {
+    public boolean reconnect(byte value) {
         if (value == 1) {
             close();
         } else {
