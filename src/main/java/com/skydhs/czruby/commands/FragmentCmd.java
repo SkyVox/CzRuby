@@ -69,14 +69,14 @@ public class FragmentCmd implements CommandExecutor  {
 
             if (path != null) {
                 String[] split = path.split(":");
-                sender.sendMessage(FileUtil.get().getString("Messages.ruby-cmd." + split[0], new String[] {
+                sender.sendMessage(FileUtil.get().getString("Messages.fragment-cmd." + split[0], new String[] {
                         "%target%",
                         "%fragments%"
                 }, new String[] {
                         target.getPlayerName(),
                         String.valueOf(amount)
                 }).asString());
-                target.asPlayer().sendMessage(FileUtil.get().getString("Messages.ruby-cmd." + split[1], new String[] {
+                target.asPlayer().sendMessage(FileUtil.get().getString("Messages.fragment-cmd." + split[1], new String[] {
                         "%sender%",
                         "%fragments%"
                 }, new String[] {
