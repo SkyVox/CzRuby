@@ -1,18 +1,24 @@
 package com.skydhs.czruby.manager.entity;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.skydhs.czruby.FileUtil;
 import com.skydhs.czruby.manager.RubyUtil;
 import com.skydhs.czruby.menu.StoreMenu;
+import net.minecraft.server.v1_8_R3.MojangsonParseException;
+import net.minecraft.server.v1_8_R3.MojangsonParser;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Ruby {
     private static final Map<String, Ruby> RUBIES = new HashMap<>(1024);
@@ -138,6 +144,74 @@ public class Ruby {
         final ItemStack log = display.claim(player, clicked);
         this.log(log);
         return true;
+    }
+
+    public void deserializeLogItems(final String json) throws MojangsonParseException {
+        if (json == null || json.isEmpty() || json.equals("{}")) {
+            this.log = null;
+        } else {
+            this.log = new LinkedList<>();
+
+            JsonObject object = (JsonObject) new JsonParser().parse(json);
+            JsonArray array = object.entrySet().iterator().next().getValue().getAsJsonArray();
+
+            Iterator<JsonElement> iterator = array.iterator();
+
+            while (iterator.hasNext()) {
+                JsonElement element = iterator.next();
+                if (!(element instanceof JsonObject)) continue;
+                JsonObject obj = (JsonObject) element;
+
+                // Create our ItemStack.
+                NBTTagCompound tag = MojangsonParser.parse(StringUtils.replaceEach(element.toString(), new String[] {
+                        "\"",
+                        "[{",
+                        "}]",
+                        "&"
+                }, new String[] {
+                        "",
+                        "[",
+                        "]",
+                        String.valueOf(ChatColor.COLOR_CHAR)
+                }));
+                ItemStack item = CraftItemStack.asBukkitCopy(net.minecraft.server.v1_8_R3.ItemStack.createStack(tag));
+
+                // Add this item into @log list.
+                this.log.add(item);
+            }
+        }
+    }
+
+    public String serializeLogToJson() {
+        if (log == null || log.isEmpty()) return "{}";
+        JsonObject object = new JsonObject();
+        final JsonArray array = new JsonArray();
+
+        log.forEach(item -> {
+            if (item == null || item.getType().equals(Material.AIR)) return;
+            String json = StringUtils.replaceEach(CraftItemStack.asNMSCopy(item).save(new NBTTagCompound()).toString(), new String[] {
+                    "[",
+                    "]",
+                    "&"
+            }, new String[] {
+                    "[{",
+                    "}]",
+                    String.valueOf(ChatColor.COLOR_CHAR)
+            });
+            JsonObject obj = new JsonParser().parse(json).getAsJsonObject();
+
+            // Remove unnecessary keys.
+            JsonElement element = obj.get("Damage");
+
+            if (element != null && StringUtils.equals(element.getAsString(), "0s")) {
+                obj.remove("Damage");
+            }
+
+            array.add(obj);
+        });
+
+        object.add("log_items", array);
+        return object.toString();
     }
 
     public String replace(final String text) {

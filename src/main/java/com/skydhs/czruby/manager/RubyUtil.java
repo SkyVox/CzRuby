@@ -25,6 +25,16 @@ public class RubyUtil {
 
     public RubyUtil() {
         RubyUtil.instance = this;
+        this.updateTask();
+    }
+
+    private void updateTask() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Ruby.getRubiesCache().values().forEach(entry -> Database.getInstance().getRubyTable().update(entry));
+            }
+        }.runTaskTimerAsynchronously(Core.getInstance(), 20 * 60 * 5, 20 * 60 * 5);
     }
 
     public void load(Core core) {

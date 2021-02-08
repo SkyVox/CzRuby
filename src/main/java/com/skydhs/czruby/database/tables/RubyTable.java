@@ -3,6 +3,7 @@ package com.skydhs.czruby.database.tables;
 import com.skydhs.czruby.ThreadContext;
 import com.skydhs.czruby.database.Sql;
 import com.skydhs.czruby.manager.entity.Ruby;
+import net.minecraft.server.v1_8_R3.MojangsonParseException;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
@@ -31,7 +32,7 @@ public class RubyTable extends Sql {
         Connection connection = null;
         Statement statement = null;
 
-        final String log = ruby.getLog().toString(); // TODO Convert as JSON..
+        final String log = ruby.serializeLogToJson();
         final String query = "INSERT INTO `" + TABLE + "` (`player_name`, `fragments`, `rubies`, `log`) VALUE (" +
                 "'" + ruby.getPlayerName() + "', " +
                 "'" + ruby.getFragments() + "', " +
@@ -81,11 +82,10 @@ public class RubyTable extends Sql {
                 long rubies = result.getLong("rubies");
                 String log = result.getString("log");
 
-                // TODO, Load this log.
-
                 ret = new Ruby(playerName, fragments, rubies, online);
+                ret.deserializeLogItems(log);
             }
-        } catch (SQLException ex) {
+        } catch (SQLException | MojangsonParseException ex) {
             ex.printStackTrace();
         } finally {
             closeConnection(connection, preparedStatement, result);
