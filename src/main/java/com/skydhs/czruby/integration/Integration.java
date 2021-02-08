@@ -8,7 +8,6 @@ import java.util.logging.Level;
 
 public abstract class Integration<T> implements IntegrationInterface<T> {
     private String name;
-    private Boolean enabled;
 
     /**
      * The @integration abstract
@@ -20,7 +19,6 @@ public abstract class Integration<T> implements IntegrationInterface<T> {
      */
     public Integration(final String name) {
         this.name = name;
-        this.enabled = setup();
 
         this.log();
     }
@@ -37,7 +35,6 @@ public abstract class Integration<T> implements IntegrationInterface<T> {
      */
     public Integration(final String name, Boolean log) {
         this.name = name;
-        this.enabled = setup();
 
         if (log) this.log();
     }
@@ -71,8 +68,6 @@ public abstract class Integration<T> implements IntegrationInterface<T> {
     }
 
     public void refresh(Boolean log) {
-        this.enabled = setup();
-
         if (log) {
             this.log();
         }
