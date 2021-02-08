@@ -21,6 +21,11 @@ public class Core extends JavaPlugin {
 
     private ConsoleCommandSender console = Bukkit.getConsoleSender();
 
+    /*
+     * Permissions:
+     *  - ruby.admin  ::  Execute admin commands.
+     */
+
     @Override
     public void onEnable() {
         long time = System.currentTimeMillis();
